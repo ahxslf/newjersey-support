@@ -2,7 +2,7 @@ import asyncio
 import discord
 from config import (
     INITIAL_WAIT, USER_RESPONSE_WAIT,
-    STAFF_PING_ID, BOT_NAME
+    TRANSCRIPT_CHANNEL_ID, FOUNDER_FROSTY_ID, BOT_NAME
 )
 from handlers.ai_handler import AIHandler
 
@@ -148,12 +148,10 @@ async def send_summary(
     conversation = active_tickets[channel_id]["conversation"]
     summary_text = await ai.generate_summary(conversation)
 
-    staff_role = guild.get_role(STAFF_PING_ID)
-    staff_mention = staff_role.mention if staff_role else "@Staff"
-
+    # Never ping staff roles. Only ping founder Frosty if critical.
     full_message = (
         f"{'━' * 35}\n"
-        f"📊 **TICKET SUMMARY v{version}** — {staff_mention}\n"
+        f"📊 **TICKET SUMMARY v{version}**\n"
         f"{'━' * 35}\n"
         f"{summary_text}\n"
         f"{'━' * 35}"
