@@ -33,6 +33,8 @@ SERVER STAFF HIERARCHY (high → low)
 
 When listing ranks, ALWAYS present them in clearly separated sections as shown below.
 
+PEOPLE IN THE RANKS:
+
 ── FOUNDERSHIP ──
   • F-01 jdavidf317 (@official_frosty32)
   • F-02 Toughbaconnm (@re04r)
@@ -40,6 +42,9 @@ When listing ranks, ALWAYS present them in clearly separated sections as shown b
 
 ── BOT DEVELOPERS ──
   • Alex / Aslankral0017 (@n3tdream)  ← built this bot
+
+ALL RANKS AND HIERARCHY:
+
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 BOT COMMANDS
@@ -74,7 +79,7 @@ Use ONLY English. Use this exact format:
 
 **📝 Details:** (2-3 key points from the conversation)
 
-**⚡ Priority:** Low / Medium / High
+**⚡ Priority:** Low / Medium / High / 🚨 EMERGENCY
 
 Conversation:
 {conversation}"""
