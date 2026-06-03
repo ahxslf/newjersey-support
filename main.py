@@ -7,10 +7,6 @@ from discord.ext import commands
 from config import (
     DISCORD_TOKEN, TICKET_CATEGORY_ID, STAFF_ROLE_ID,
     TRANSCRIPT_CHANNEL_ID, FOUNDERSHIP_TEAM_ROLE_ID,
-    ROLE_LEAD_ADMIN, ROLE_SENIOR_ADMIN, ROLE_ADMIN, ROLE_JUNIOR_ADMIN, ROLE_TRIAL_ADMIN,
-    ROLE_ADMINISTRATION_TEAM,
-    ROLE_LEAD_MOD, ROLE_SENIOR_MOD, ROLE_MOD, ROLE_JUNIOR_MOD, ROLE_TRIAL_MOD,
-    ROLE_MODERATION_TEAM, ROLE_STAFF_TEAM
 )
 from handlers.ticket_handler import (
     handle_new_ticket, handle_followup_message,
@@ -115,7 +111,6 @@ async def on_message(message: discord.Message):
     if not message.guild:
         return
 
-    # Komut mesajlarını AI'ya gönderme
     if message.content.startswith("!"):
         return
 
@@ -133,7 +128,6 @@ async def on_message(message: discord.Message):
     if not ticket:
         return
 
-    # Sadece ticket sahibinin mesajları işlensin
     ticket_user = ticket.get("user")
     if ticket_user and message.author.id != ticket_user.id:
         return
