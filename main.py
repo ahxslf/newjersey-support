@@ -6,7 +6,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from discord.ext import commands
 from config import (
     DISCORD_TOKEN, TICKET_CATEGORY_ID, STAFF_ROLE_ID,
-    TRANSCRIPT_CHANNEL_ID, FOUNDERSHIP_TEAM_ROLE_ID,
+    TRANSCRIPT_CHANNEL_ID,
 )
 from handlers.ticket_handler import (
     handle_new_ticket, handle_followup_message,
