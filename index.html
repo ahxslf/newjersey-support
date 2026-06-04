@@ -1,31 +1,237 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-  <meta charset="utf-8">
-  <title>Bot Status</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Status | Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --primary-color: #5865F2; /* Discord Blurple */
+            --success-color: #22c55e;
+            --danger-color: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(88, 101, 242, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(88, 101, 242, 0.1) 0%, transparent 40%);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .status-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .status-card:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+        }
+
+        .indicator-wrapper {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .indicator-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .status-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--text-muted);
+            position: relative;
+            z-index: 2;
+            transition: all 0.5s ease;
+        }
+
+        /* Pulse Animation */
+        .status-dot.online {
+            background-color: var(--success-color);
+            box-shadow: 0 0 20px var(--success-color);
+        }
+
+        .status-dot.online::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 50%;
+            background-color: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.offline {
+            background-color: var(--danger-color);
+            box-shadow: 0 0 20px var(--danger-color);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        .status-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .last-update {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .refresh-bar {
+            margin-top: 30px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .refresh-progress {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 1s linear;
+        }
+    </style>
 </head>
 <body>
-  <h1>Discord Bot Status</h1>
-  <p id="status">Kontrol ediliyor...</p>
 
-  <script>
+<div class="container">
+    <div class="status-card">
+        <h1>Bot Durumu</h1>
+        <p class="subtitle">New Jersey Support Monitor</p>
+
+        <div class="indicator-wrapper">
+            <div class="indicator-ring"></div>
+            <div id="dot" class="status-dot"></div>
+        </div>
+
+        <div id="status-label" class="status-text">Kontrol Ediliyor...</div>
+        <div id="update-time" class="last-update">-</div>
+
+        <div class="refresh-bar">
+            <div id="progress" class="refresh-progress"></div>
+        </div>
+    </div>
+</div>
+
+<script>
     const URL = "https://newjersey-support.onrender.com/";
+    const dot = document.getElementById("dot");
+    const label = document.getElementById("status-label");
+    const timeLabel = document.getElementById("update-time");
+    const progressBar = document.getElementById("progress");
 
-    async function check() {
-      try {
-        const res = await fetch(URL, { cache: "no-store" });
-        const text = await res.text();
+    let secondsPassed = 0;
+    const intervalSeconds = 60;
 
-        document.getElementById("status").innerText =
-          text.trim() === "OK" ? "🟢 Online" : "🔴 Offline";
-
-      } catch (e) {
-        document.getElementById("status").innerText = "🔴 Offline";
-      }
+    async function checkStatus() {
+        try {
+            // İsteği gönder
+            const res = await fetch(URL, { cache: "no-store" });
+            const text = await res.text();
+            
+            const isOnline = text.trim() === "OK";
+            updateUI(isOnline);
+        } catch (e) {
+            updateUI(false);
+        }
+        resetTimer();
     }
 
-    check();
-    setInterval(check, 60000); // 1 dakika UI refresh
-  </script>
+    function updateUI(isOnline) {
+        if (isOnline) {
+            dot.className = "status-dot online";
+            label.innerText = "Sistem Aktif";
+            label.style.color = "var(--success-color)";
+        } else {
+            dot.className = "status-dot offline";
+            label.innerText = "Sistem Çevrimdışı";
+            label.style.color = "var(--danger-color)";
+        }
+        
+        const now = new Date();
+        timeLabel.innerText = "Son Güncelleme: " + now.toLocaleTimeString();
+    }
+
+    function resetTimer() {
+        secondsPassed = 0;
+        progressBar.style.transition = "none";
+        progressBar.style.width = "0%";
+        setTimeout(() => {
+            progressBar.style.transition = `width ${intervalSeconds}s linear`;
+            progressBar.style.width = "100%";
+        }, 50);
+    }
+
+    // İlk çalıştırma
+    checkStatus();
+
+    // Her dakikada bir kontrol et
+    setInterval(checkStatus, intervalSeconds * 1000);
+
+    // Progress bar için saniyelik takip (isteğe bağlı görsel iyileştirme)
+    // Progress bar'ı CSS transition ile hallettiğimiz için ek JS döngüsüne gerek yok.
+</script>
+
 </body>
 </html>
