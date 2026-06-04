@@ -6,11 +6,12 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from discord.ext import commands
 from config import (
     DISCORD_TOKEN, TICKET_CATEGORY_ID, STAFF_ROLE_ID,
-    TRANSCRIPT_CHANNEL_ID,
+    TRANSCRIPT_CHANNEL_ID, AUTHORIZED_USER_ID,
 )
 from handlers.ticket_handler import (
     handle_new_ticket, handle_followup_message,
-    stop_ticket, is_active_ticket, is_first_message_done,
+    stop_ticket, start_ticket, restart_ticket,
+    is_active_ticket, is_first_message_done,
     active_tickets
 )
 
@@ -49,8 +50,15 @@ bot = commands.Bot(command_prefix=get_prefix, intents=intents)
 # ───────────────────────────────────────────
 
 def is_staff(ctx: commands.Context) -> bool:
+    """Staff rolüne sahip mi VEYA authorized user mı?"""
+    if ctx.author.id == AUTHORIZED_USER_ID:
+        return True
     staff_role = ctx.guild.get_role(STAFF_ROLE_ID)
     return staff_role in ctx.author.roles
+
+def is_authorized(ctx: commands.Context) -> bool:
+    """Sadece belirli ID'ye sahip kullanıcı mı?"""
+    return ctx.author.id == AUTHORIZED_USER_ID
 
 def is_ticket_channel(ctx: commands.Context) -> bool:
     return (
@@ -91,6 +99,7 @@ async def send_transcript(channel: discord.TextChannel, guild: discord.Guild, cl
 async def on_ready():
     print(f"✅ Bot online: {bot.user}")
     print(f"📂 Watching category ID: {TICKET_CATEGORY_ID}")
+    print(f"🔑 Authorized user ID: {AUTHORIZED_USER_ID}")
 
 @bot.event
 async def on_guild_channel_create(channel):
@@ -156,6 +165,53 @@ async def stop_command(ctx: commands.Context):
         return
     stop_ticket(ctx.channel.id)
     await ctx.send("🛑 New Jersey | Support disabled.")
+
+@bot.command(name="start")
+async def start_command(ctx: commands.Context):
+    """!stop ile devre dışı bırakılmış botu ticket'ta tekrar aktif eder."""
+    if not is_staff(ctx):
+        await ctx.send("❌ You don't have permission.")
+        return
+    if not is_ticket_channel(ctx):
+        await ctx.send("❌ This is not a ticket channel.")
+        return
+
+    channel_id = ctx.channel.id
+
+    # Eğer ticket zaten aktifse
+    if is_active_ticket(channel_id):
+        await ctx.send("⚠️ AI is already active in this ticket.")
+        return
+
+    # Eğer ticket var ama stopped ise — !stop sonrası tekrar açma
+    ticket = active_tickets.get(channel_id)
+    if ticket and ticket.get("stopped"):
+        await ctx.send("🔄 Re-enabling AI... Reading message history...")
+        await start_ticket(bot, ctx.channel, ctx.guild)
+        return
+
+    # Ticket hiç yoksa (bot restart sonrası) — bu durumda !restart kullanılmalı
+    await ctx.send("❌ No ticket data found. Use `!restart` if the bot was restarted.")
+
+@bot.command(name="restart")
+async def restart_command(ctx: commands.Context):
+    """Bot yeniden başlatıldıktan sonra ticket'ta AI'yı tekrar aktif eder."""
+    if not is_staff(ctx):
+        await ctx.send("❌ You don't have permission.")
+        return
+    if not is_ticket_channel(ctx):
+        await ctx.send("❌ This is not a ticket channel.")
+        return
+
+    channel_id = ctx.channel.id
+
+    # Eğer zaten aktifse
+    if is_active_ticket(channel_id):
+        await ctx.send("⚠️ AI is already active in this ticket.")
+        return
+
+    await ctx.send("🔄 Restarting AI in this ticket... Reading full message history...")
+    await restart_ticket(bot, ctx.channel, ctx.guild)
 
 @bot.command(name="close")
 async def close_command(ctx: commands.Context):
@@ -261,7 +317,7 @@ async def rename_command(ctx: commands.Context, *, new_name: str = None):
         await ctx.send("❌ This is not a ticket channel.")
         return
     if not new_name:
-        await ctx.send("❌ Usage: `!rename <new name>`")
+        await ctx.send("❌ Usage: `!rename <name>`")
         return
     safe_name = new_name.lower().replace(" ", "-")
     await ctx.channel.edit(name=f"support-{safe_name}")
@@ -301,6 +357,11 @@ async def add_command(ctx: commands.Context, member: discord.Member = None):
 
 @bot.command(name="cmds")
 async def cmds_command(ctx: commands.Context):
+    # Sadece staff veya authorized user kullanabilir
+    if not is_staff(ctx):
+        await ctx.send("❌ You don't have permission to view commands.")
+        return
+
     embed = discord.Embed(
         title="📖 New Jersey | Support — Commands",
         color=discord.Color.blurple()
@@ -309,6 +370,8 @@ async def cmds_command(ctx: commands.Context):
         name="🎫 Ticket Commands",
         value=(
             "`!stop` — Disable AI assistance in this ticket\n"
+            "`!start` — Re-enable AI after !stop (reads message history)\n"
+            "`!restart` — Re-activate AI after bot restart (reads history)\n"
             "`!close` — Close & delete ticket (confirmation + transcript)\n"
             "`!claim` — Claim this ticket\n"
             "`!unclaim` — Unclaim this ticket\n"
