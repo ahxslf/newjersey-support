@@ -35,6 +35,41 @@ def is_command_message(content: str) -> bool:
             return True
     return False
 
+async def rebuild_conversation_from_history(bot, channel: discord.TextChannel, guild: discord.Guild):
+    """
+    Kanal mesaj geçmişini okuyarak conversation listesini yeniden oluşturur.
+    Bot mesajlarını assistant, kullanıcı mesajlarını user olarak kaydeder.
+    """
+    conversation = []
+    ticket_user = None
+    username = extract_username(channel.name)
+
+    async for msg in channel.history(limit=500, oldest_first=True):
+        # Komut mesajlarını atla
+        if msg.content and is_command_message(msg.content):
+            continue
+
+        if msg.author.bot:
+            # Bot'un kendi mesajları — "**New Jersey | Support:** " prefixli olanlar AI yanıtı
+            if msg.content and msg.content.startswith(f"**{BOT_NAME}:**"):
+                ai_text = msg.content.replace(f"**{BOT_NAME}:** ", "", 1)
+                ai_text = ai_text.replace(f"**{BOT_NAME}:**", "", 1).strip()
+                if ai_text:
+                    conversation.append({"role": "assistant", "content": ai_text})
+        else:
+            # Kullanıcı mesajı
+            if msg.content and not is_command_message(msg.content):
+                conversation.append({"role": "user", "content": msg.content})
+                # İlk kullanıcı mesajını göndereni ticket sahibi olarak belirle
+                if ticket_user is None:
+                    ticket_user = msg.author
+
+    # Eğer ticket_user bulunamadıysa username'den bulmayı dene
+    if ticket_user is None:
+        ticket_user = find_member_by_username(guild, username)
+
+    return conversation, ticket_user
+
 async def handle_new_ticket(bot, channel: discord.TextChannel, guild: discord.Guild):
     channel_id = channel.id
     username = extract_username(channel.name)
@@ -44,7 +79,8 @@ async def handle_new_ticket(bot, channel: discord.TextChannel, guild: discord.Gu
         "waiting": False,
         "first_message_done": False,
         "conversation": [],
-        "summary_msg": None,
+        "summary_sent": False,
+        "last_importance": None,
         "user": None,
     }
 
@@ -136,38 +172,109 @@ async def handle_new_ticket(bot, channel: discord.TextChannel, guild: discord.Gu
     active_tickets[channel_id]["first_message_done"] = True
     print(f"[Ticket] First exchange done in #{channel.name}")
 
+
+async def start_ticket(bot, channel: discord.TextChannel, guild: discord.Guild):
+    """
+    !start komutu — daha önce !stop ile devre dışı bırakılmış bir ticket'ı tekrar aktif eder.
+    Mesaj geçmişini okuyarak conversation'ı yeniden oluşturur.
+    """
+    channel_id = channel.id
+
+    # Mesaj geçmişinden conversation'ı yeniden oluştur
+    conversation, ticket_user = await rebuild_conversation_from_history(bot, channel, guild)
+
+    active_tickets[channel_id] = {
+        "stopped": False,
+        "waiting": False,
+        "first_message_done": True,  # Zaten mesajlar var
+        "conversation": conversation,
+        "summary_sent": False,
+        "last_importance": None,
+        "user": ticket_user,
+    }
+
+    print(f"[Ticket] Re-started: #{channel.name} | Rebuilt {len(conversation)} messages")
+
+    await channel.send(
+        f"🟢 **{BOT_NAME}** has been re-enabled in this ticket.\n"
+        f"I've read through the previous conversation ({len(conversation)} messages) and I'm ready to continue helping!"
+    )
+
+
+async def restart_ticket(bot, channel: discord.TextChannel, guild: discord.Guild):
+    """
+    !restart komutu — bot yeniden başlatıldıktan sonra ticket'ta AI'yı tekrar aktif eder.
+    Mesaj geçmişini okuyarak conversation'ı yeniden oluşturur.
+    """
+    channel_id = channel.id
+
+    # Mesaj geçmişinden conversation'ı yeniden oluştur
+    conversation, ticket_user = await rebuild_conversation_from_history(bot, channel, guild)
+
+    active_tickets[channel_id] = {
+        "stopped": False,
+        "waiting": False,
+        "first_message_done": True,
+        "conversation": conversation,
+        "summary_sent": False,
+        "last_importance": None,
+        "user": ticket_user,
+    }
+
+    print(f"[Ticket] Restarted after bot reboot: #{channel.name} | Rebuilt {len(conversation)} messages")
+
+    await channel.send(
+        f"🔄 **{BOT_NAME}** has been restarted in this ticket.\n"
+        f"I've re-read the full conversation history ({len(conversation)} messages) and I'm back online!"
+    )
+
+
 async def send_summary(
     channel: discord.TextChannel,
     guild: discord.Guild,
     channel_id: int,
-    version: int = 1
 ):
-    if active_tickets[channel_id]["stopped"]:
+    """
+    Summary gönderir AMA sadece konu önemliyse.
+    Önemsiz konularda (basit soru-cevap) summary göndermez.
+    Her summary yeni mesaj olarak gönderilir (eski mesaj düzenlenmez).
+    """
+    ticket = active_tickets.get(channel_id)
+    if not ticket:
+        return
+    if ticket["stopped"]:
         return
 
-    conversation = active_tickets[channel_id]["conversation"]
+    conversation = ticket["conversation"]
+
+    # Önce önem kontrolü yap
+    is_important = await ai.check_importance(conversation)
+
+    if not is_important:
+        print(f"[Summary] Skipped for #{channel.name} — conversation is unimportant")
+        ticket["last_importance"] = False
+        return
+
+    ticket["last_importance"] = True
+
+    # Summary oluştur ve yeni mesaj olarak gönder
     summary_text = await ai.generate_summary(conversation)
 
-    # Never ping staff roles. Only ping founder Frosty if critical.
+    user_msg_count = len([m for m in conversation if m["role"] == "user"])
+
     full_message = (
         f"{'━' * 35}\n"
-        f"📊 **TICKET SUMMARY v{version}**\n"
+        f"📊 **TICKET SUMMARY v{user_msg_count}**\n"
         f"{'━' * 35}\n"
         f"{summary_text}\n"
         f"{'━' * 35}"
     )
 
-    existing_summary = active_tickets[channel_id]["summary_msg"]
+    # Her zaman yeni mesaj olarak gönder
+    await channel.send(full_message)
+    ticket["summary_sent"] = True
+    print(f"[Summary] Sent new summary v{user_msg_count} for #{channel.name}")
 
-    if existing_summary is None:
-        summary_msg = await channel.send(full_message)
-        active_tickets[channel_id]["summary_msg"] = summary_msg
-    else:
-        try:
-            await existing_summary.edit(content=full_message)
-        except discord.NotFound:
-            summary_msg = await channel.send(full_message)
-            active_tickets[channel_id]["summary_msg"] = summary_msg
 
 async def handle_followup_message(message: discord.Message, guild: discord.Guild):
     channel_id = message.channel.id
@@ -211,9 +318,10 @@ async def handle_followup_message(message: discord.Message, guild: discord.Guild
         [m for m in ticket["conversation"] if m["role"] == "user"]
     )
 
-    # Summary: kullanıcı en az 2 mesaj gönderdikten sonra
+    # Summary: kullanıcı en az 2 mesaj gönderdikten sonra, önem kontrolü ile
     if user_message_count >= 2:
-        await send_summary(message.channel, guild, channel_id, version=user_message_count)
+        await send_summary(message.channel, guild, channel_id)
+
 
 def stop_ticket(channel_id: int) -> bool:
     if channel_id in active_tickets:
