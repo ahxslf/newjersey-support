@@ -212,42 +212,64 @@
     renderLogs();
 
     async function checkBot() {
-        let isOnline = false;
         const now = new Date();
         const timeStr = now.toLocaleTimeString('tr-TR');
         const dateStr = now.toLocaleDateString('tr-TR');
+        let isOnline = false;
+        let errorMsg = "";
 
-        try {
-            // API üzerinden içeriği alıyoruz
-            const response = await fetch(`${PROXY_URL}${encodeURIComponent(TARGET_URL)}&t=${Date.now()}`);
-            if (!response.ok) throw new Error("Proxy hatası");
-            
-            const data = await response.json();
-            // Render "OK" döndürüyorsa data.contents "OK" olmalı
-            if (data && data.contents && data.contents.trim() === "OK") {
-                isOnline = true;
+        // Denenecek Proxy Listesi
+        const proxies = [
+            `https://api.allorigins.win/get?url=${encodeURIComponent(TARGET_URL)}&t=${Date.now()}`,
+            `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(TARGET_URL)}`,
+            `https://thingproxy.freeboard.io/fetch/${TARGET_URL}`
+        ];
+
+        for (const proxy of proxies) {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 saniye timeout (Render uyanması için)
+
+                const response = await fetch(proxy, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) throw new Error("Proxy yanıt vermedi");
+
+                let text = "";
+                if (proxy.includes("allorigins")) {
+                    const data = await response.json();
+                    text = data.contents || "";
+                } else {
+                    text = await response.text();
+                }
+
+                if (text.trim().includes("OK")) {
+                    isOnline = true;
+                    break; // Başarılıysa döngüden çık
+                }
+            } catch (error) {
+                console.warn(`Proxy denemesi başarısız (${proxy}):`, error);
+                errorMsg = error.message;
             }
-        } catch (error) {
-            console.error("Bağlantı Hatası:", error);
-            isOnline = false;
         }
 
-        updateUI(isOnline, timeStr);
+        updateUI(isOnline, timeStr, isOnline ? "" : "Bağlantı sağlanamadı (CORS veya Timeout)");
         handleLogs(isOnline, dateStr, timeStr);
         startProgressBar();
     }
 
-    function updateUI(isOnline, timeStr) {
+    function updateUI(isOnline, timeStr, reason) {
         if (isOnline) {
             dot.className = "status-dot online";
             statusText.innerText = "ONLINE";
             statusText.style.color = "var(--success)";
+            lastUpdate.innerText = `Son Kontrol: ${timeStr}`;
         } else {
             dot.className = "status-dot offline";
             statusText.innerText = "OFFLINE";
             statusText.style.color = "var(--danger)";
+            lastUpdate.innerText = reason ? `${reason} (${timeStr})` : `Son Kontrol: ${timeStr}`;
         }
-        lastUpdate.innerText = `Son Kontrol: ${timeStr}`;
     }
 
     function handleLogs(isOnline, date, time) {
