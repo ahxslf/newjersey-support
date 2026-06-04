@@ -32,16 +32,16 @@
             max-width: 700px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 24px;
         }
 
         .main-title {
             text-align: center;
-            margin-bottom: 10px;
         }
         .main-title h1 {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 800;
+            letter-spacing: -1px;
             background: linear-gradient(90deg, #fff, #94a3b8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -50,47 +50,47 @@
             color: var(--primary);
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-size: 0.75rem;
+            letter-spacing: 2px;
+            font-size: 0.8rem;
             margin-top: 5px;
         }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .stat-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .stat-label { color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px; font-weight: 600; }
+        .stat-value { font-size: 1.25rem; font-weight: 800; }
 
         .card {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 24px;
+            padding: 30px;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-        }
-        .stat-box {
-            background: rgba(255,255,255,0.02);
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            text-align: center;
-        }
-        .stat-label { color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 5px; }
-        .stat-value { font-size: 1.1rem; font-weight: 700; }
-
-        .status-section {
+        .status-hero {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px 0;
+            text-align: center;
         }
         .indicator {
-            width: 60px; height: 60px; border-radius: 50%;
-            margin-bottom: 15px; position: relative;
+            width: 70px; height: 70px; border-radius: 50%;
+            margin-bottom: 20px; position: relative;
             background: #1a1f2e;
             display: flex; justify-content: center; align-items: center;
         }
-        .indicator.online { color: var(--success); box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
-        .indicator.offline { color: var(--danger); box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); }
+        .indicator.online { color: var(--success); }
+        .indicator.offline { color: var(--danger); }
         
         .indicator.online::after {
             content: ''; position: absolute; inset: 0; border-radius: 50%;
@@ -99,41 +99,43 @@
 
         @keyframes pulse {
             0% { transform: scale(1); opacity: 0.4; }
-            100% { transform: scale(2); opacity: 0; }
+            100% { transform: scale(2.2); opacity: 0; }
         }
 
-        .status-label { font-size: 1.5rem; font-weight: 800; }
+        .status-label { font-size: 1.8rem; font-weight: 800; }
         
-        .progress-bar {
+        .progress-container {
             width: 100%; height: 4px; background: rgba(255,255,255,0.05);
-            margin-top: 25px; border-radius: 2px; overflow: hidden;
+            margin-top: 30px; border-radius: 2px; overflow: hidden;
         }
-        #bar-fill { height: 100%; width: 0%; background: var(--primary); transition: width 1s linear; }
+        #progress-fill { height: 100%; width: 0%; background: var(--primary); transition: width 1s linear; }
 
         .logs-title {
-            font-size: 0.9rem; font-weight: 700; color: var(--text-dim);
-            margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;
-            border-bottom: 1px solid var(--border); padding-bottom: 10px;
+            font-size: 1rem; font-weight: 800;
+            margin-bottom: 20px; color: var(--text);
+            display: flex; align-items: center; gap: 10px;
         }
+        .logs-title::after { content: ''; flex-grow: 1; height: 1px; background: var(--border); }
+
         .log-item {
-            padding: 12px;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.01);
-            margin-bottom: 8px;
+            padding: 15px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.02);
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-left: 3px solid var(--text-dim);
+            border-left: 4px solid var(--text-dim);
         }
         .log-item.up { border-left-color: var(--success); }
         .log-item.down { border-left-color: var(--danger); }
         
-        .log-main { font-weight: 600; font-size: 0.85rem; }
-        .log-date { font-size: 0.75rem; color: var(--text-dim); }
+        .log-main { font-weight: 700; font-size: 0.95rem; margin-bottom: 2px; }
+        .log-date { font-size: 0.8rem; color: var(--text-dim); }
         .log-duration { 
-            font-size: 0.7rem; background: rgba(255,255,255,0.05); 
-            padding: 2px 6px; border-radius: 4px; margin-top: 4px;
-            display: inline-block;
+            font-size: 0.75rem; font-family: 'JetBrains Mono', monospace;
+            background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px;
+            margin-top: 8px; display: inline-block;
         }
     </style>
 </head>
@@ -147,27 +149,27 @@
 
     <div class="stats-grid">
         <div class="stat-box">
-            <div class="stat-label">Uptime</div>
-            <div id="stat-uptime" class="stat-value">100%</div>
+            <div class="stat-label">System Uptime</div>
+            <div id="uptime-val" class="stat-value">100%</div>
         </div>
         <div class="stat-box">
-            <div class="stat-label">Incidents</div>
-            <div id="stat-incidents" class="stat-value">0</div>
+            <div class="stat-label">Total Incidents</div>
+            <div id="incidents-val" class="stat-value">0</div>
         </div>
         <div class="stat-box">
-            <div class="stat-label">Last Check</div>
-            <div id="stat-last" class="stat-value">--:--</div>
+            <div class="stat-label">Last Checked</div>
+            <div id="last-val" class="stat-value">--:--</div>
         </div>
     </div>
 
     <div class="card">
-        <div class="status-section">
+        <div class="status-hero">
             <div id="indicator" class="indicator">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
             </div>
-            <div id="status-text" class="status-label">CHECKING...</div>
-            <div class="progress-bar">
-                <div id="bar-fill"></div>
+            <div id="status-text" class="status-label">INITIALIZING...</div>
+            <div class="progress-container">
+                <div id="progress-fill"></div>
             </div>
         </div>
     </div>
@@ -175,57 +177,73 @@
     <div class="card">
         <div class="logs-title">Incident History</div>
         <div id="logs-list">
-            <!-- Logs appear here -->
+            <!-- Incident records -->
         </div>
     </div>
 </div>
 
 <script>
-    const URL = "https://newjersey-support.onrender.com/";
-    const PROXY = "https://api.allorigins.win/raw?url="; // Using the 'raw' proxy from v2 which worked
+    const TARGET = "https://newjersey-support.onrender.com/";
     
-    let history = JSON.parse(localStorage.getItem('nj_logs_v5') || '[]');
-    let totalChecks = parseInt(localStorage.getItem('nj_total_v5') || '0');
-    let successChecks = parseInt(localStorage.getItem('nj_success_v5') || '0');
+    let history = JSON.parse(localStorage.getItem('nj_final_logs') || '[]');
+    let checks = parseInt(localStorage.getItem('nj_final_total') || '0');
+    let success = parseInt(localStorage.getItem('nj_final_success') || '0');
     let lastStatus = null;
-    let downStart = localStorage.getItem('nj_down_start_v5') ? parseInt(localStorage.getItem('nj_down_start_v5')) : null;
+    let downStart = localStorage.getItem('nj_final_downstart') ? parseInt(localStorage.getItem('nj_final_downstart')) : null;
 
-    async function check() {
+    async function checkStatus() {
         const now = new Date();
         const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
-        const dateStr = now.toLocaleDateString('en-US');
+        const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         let isOnline = false;
 
-        totalChecks++;
+        // Try multiple proxies like the version that worked
+        const proxies = [
+            `https://api.allorigins.win/get?url=${encodeURIComponent(TARGET)}&t=${now.getTime()}`,
+            `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(TARGET)}`,
+            `https://thingproxy.freeboard.io/fetch/${TARGET}`
+        ];
 
-        try {
-            // Reverting to the logic that worked in the first versions
-            const res = await fetch(PROXY + encodeURIComponent(URL) + "&t=" + now.getTime());
-            const text = await res.text();
-            
-            if (text.trim() === "OK") {
-                isOnline = true;
-                successChecks++;
+        for (const url of proxies) {
+            try {
+                const res = await fetch(url);
+                if (!res.ok) continue;
+
+                let content = "";
+                if (url.includes("allorigins")) {
+                    const data = await res.json();
+                    content = data.contents || "";
+                } else {
+                    content = await res.text();
+                }
+
+                if (content.toUpperCase().includes("OK")) {
+                    isOnline = true;
+                    break; 
+                }
+            } catch (e) {
+                console.warn("Proxy failed, trying next...");
             }
-        } catch (e) {
-            isOnline = false;
         }
 
-        updateUI(isOnline, timeStr);
-        handleLogs(isOnline, dateStr, timeStr, now.getTime());
+        checks++;
+        if (isOnline) success++;
+
+        updateDashboard(isOnline, timeStr);
+        processHistory(isOnline, dateStr, timeStr, now.getTime());
         
-        localStorage.setItem('nj_total_v5', totalChecks);
-        localStorage.setItem('nj_success_v5', successChecks);
-        startProgress();
+        localStorage.setItem('nj_final_total', checks);
+        localStorage.setItem('nj_final_success', success);
+        resetProgressBar();
     }
 
-    function updateUI(isOnline, timeStr) {
+    function updateDashboard(isOnline, timeStr) {
+        document.getElementById("last-val").innerText = timeStr;
+        document.getElementById("uptime-val").innerText = checks === 0 ? "100%" : ((success/checks)*100).toFixed(2) + "%";
+        document.getElementById("incidents-val").innerText = history.filter(l => l.type === 'down').length;
+
         const ind = document.getElementById("indicator");
         const txt = document.getElementById("status-text");
-        
-        document.getElementById("stat-last").innerText = timeStr;
-        document.getElementById("stat-uptime").innerText = totalChecks === 0 ? "100%" : ((successChecks/totalChecks)*100).toFixed(2) + "%";
-        document.getElementById("stat-incidents").innerText = history.filter(l => l.type === 'down').length;
 
         if (isOnline) {
             ind.className = "indicator online";
@@ -238,26 +256,30 @@
         }
     }
 
-    function handleLogs(isOnline, date, time, ts) {
+    function processHistory(isOnline, date, time, ts) {
         const current = isOnline ? 'online' : 'offline';
         if (lastStatus !== null && lastStatus !== current) {
-            let log = { date, time, ts, type: isOnline ? 'up' : 'down', msg: isOnline ? 'System Restored' : 'Connection Lost' };
+            let log = { 
+                date, time, ts, 
+                type: isOnline ? 'up' : 'down', 
+                msg: isOnline ? 'System Restored' : 'Connection Lost' 
+            };
 
             if (!isOnline) {
                 downStart = ts;
-                localStorage.setItem('nj_down_start_v5', downStart);
+                localStorage.setItem('nj_final_downstart', downStart);
             } else if (isOnline && downStart) {
                 const diff = ts - downStart;
                 const m = Math.floor(diff / 60000);
                 const s = Math.floor((diff % 60000) / 1000);
-                log.duration = `Downtime: ${m}m ${s}s`;
+                log.duration = `Downtime Duration: ${m}m ${s}s`;
                 downStart = null;
-                localStorage.removeItem('nj_down_start_v5');
+                localStorage.removeItem('nj_final_downstart');
             }
 
             history.unshift(log);
-            if (history.length > 50) history.pop();
-            localStorage.setItem('nj_logs_v5', JSON.stringify(history));
+            if (history.length > 100) history.pop();
+            localStorage.setItem('nj_final_logs', JSON.stringify(history));
             renderLogs();
         }
         lastStatus = current;
@@ -266,13 +288,15 @@
     function renderLogs() {
         const list = document.getElementById("logs-list");
         if (history.length === 0) {
-            list.innerHTML = '<div style="text-align:center; color:var(--text-dim); font-size:0.8rem;">Monitoring started. No incidents yet.</div>';
+            list.innerHTML = '<div style="text-align:center; color:var(--text-dim); padding:20px;">Monitoring active. No incidents to report.</div>';
             return;
         }
         list.innerHTML = history.map(l => `
             <div class="log-item ${l.type}">
                 <div>
-                    <div class="log-main" style="color:${l.type === 'up' ? 'var(--success)' : 'var(--danger)'}">${l.msg}</div>
+                    <div class="log-main" style="color:${l.type === 'up' ? 'var(--success)' : 'var(--danger)'}">
+                        ${l.type === 'up' ? '▲' : '▼'} ${l.msg}
+                    </div>
                     <div class="log-date">${l.date} at ${l.time}</div>
                     ${l.duration ? `<div class="log-duration">${l.duration}</div>` : ''}
                 </div>
@@ -280,8 +304,8 @@
         `).join('');
     }
 
-    function startProgress() {
-        const fill = document.getElementById("bar-fill");
+    function resetProgressBar() {
+        const fill = document.getElementById("progress-fill");
         fill.style.transition = 'none';
         fill.style.width = '0%';
         setTimeout(() => {
@@ -291,9 +315,9 @@
     }
 
     renderLogs();
-    check();
-    setInterval(check, 60000);
+    checkStatus();
+    setInterval(checkStatus, 60000);
 </script>
 
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a066c3822a5d132c',t:'MTc4MDU3NDI4NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a066c6a33ef37fc6',t:'MTc4MDU3NDQxMw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
