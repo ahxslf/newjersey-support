@@ -43,7 +43,7 @@ intents.guilds = True
 async def get_prefix(bot, message):
     return ["!"]
 
-bot = commands.Bot(command_prefix=get_prefix, intents=intents)
+bot = commands.Bot(command_prefix=get_prefix, intents=intents, help_command=None)
 
 # ───────────────────────────────────────────
 # HELPERS
@@ -355,7 +355,7 @@ async def add_command(ctx: commands.Context, member: discord.Member = None):
 # !cmds
 # ───────────────────────────────────────────
 
-@bot.command(name="cmds")
+@bot.command(name="cmds", aliases=["help"])
 async def cmds_command(ctx: commands.Context):
     # Sadece staff veya authorized user kullanabilir
     if not is_staff(ctx):
