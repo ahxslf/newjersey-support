@@ -186,13 +186,17 @@
 
     async function checkStatus() {
         try {
-            // İsteği gönder
-            const res = await fetch(URL, { cache: "no-store" });
+            // CORS sorununu aşmak için bir proxy kullanıyoruz
+            const proxyUrl = "https://api.allorigins.win/raw?url=";
+            const targetUrl = encodeURIComponent(URL);
+            
+            const res = await fetch(proxyUrl + targetUrl, { cache: "no-store" });
             const text = await res.text();
             
             const isOnline = text.trim() === "OK";
             updateUI(isOnline);
         } catch (e) {
+            console.error("Hata:", e);
             updateUI(false);
         }
         resetTimer();
