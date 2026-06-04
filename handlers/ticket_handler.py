@@ -264,7 +264,7 @@ async def send_summary(
 
     full_message = (
         f"{'━' * 35}\n"
-        f"📊 **TICKET SUMMARY v{user_msg_count} @<1511205242635554917>**\n"
+        f"📊 **TICKET SUMMARY v{user_msg_count} <@&1511205242635554917>**\n"
         f"{'━' * 35}\n"
         f"{summary_text}\n"
         f"{'━' * 35}"
