@@ -12,7 +12,6 @@
             --primary: #5865F2;
             --success: #10b981;
             --danger: #ef4444;
-            --warning: #f59e0b;
             --text: #ffffff;
             --text-dim: #94a3b8;
             --border: rgba(255, 255, 255, 0.08);
@@ -26,15 +25,14 @@
             display: flex;
             justify-content: center;
             padding: 40px 20px;
-            line-height: 1.5;
         }
 
         .dashboard {
             width: 100%;
-            max-width: 800px;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 24px;
+            max-width: 700px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         .main-title {
@@ -42,9 +40,8 @@
             margin-bottom: 10px;
         }
         .main-title h1 {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 800;
-            letter-spacing: -1px;
             background: linear-gradient(90deg, #fff, #94a3b8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -53,8 +50,9 @@
             color: var(--primary);
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            font-size: 0.75rem;
+            margin-top: 5px;
         }
 
         .card {
@@ -62,116 +60,81 @@
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* Top Stats */
-        .header-stats {
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
         }
         .stat-box {
-            background: rgba(255,255,255,0.03);
-            padding: 16px;
+            background: rgba(255,255,255,0.02);
+            padding: 15px;
             border-radius: 12px;
             border: 1px solid var(--border);
-        }
-        .stat-label { color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; font-weight: 600; }
-        .stat-value { font-size: 1.25rem; font-weight: 700; margin-top: 4px; }
-
-        /* Status Hero */
-        .status-hero {
             text-align: center;
-            padding: 20px 0;
+        }
+        .stat-label { color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-value { font-size: 1.1rem; font-weight: 700; }
+
+        .status-section {
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 20px 0;
         }
         .indicator {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            margin-bottom: 20px;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 60px; height: 60px; border-radius: 50%;
+            margin-bottom: 15px; position: relative;
             background: #1a1f2e;
+            display: flex; justify-content: center; align-items: center;
         }
-        .indicator::after {
-            content: '';
-            position: absolute;
-            width: 100%; height: 100%;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-            display: none;
+        .indicator.online { color: var(--success); box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
+        .indicator.offline { color: var(--danger); box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); }
+        
+        .indicator.online::after {
+            content: ''; position: absolute; inset: 0; border-radius: 50%;
+            background: var(--success); animation: pulse 2s infinite;
         }
-        .indicator.online { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .indicator.online::after { display: block; background: var(--success); }
-        .indicator.offline { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
 
         @keyframes pulse {
             0% { transform: scale(1); opacity: 0.4; }
-            100% { transform: scale(2.2); opacity: 0; }
+            100% { transform: scale(2); opacity: 0; }
         }
 
-        .status-label { font-size: 1.75rem; font-weight: 800; }
-        .status-desc { color: var(--text-dim); font-size: 0.9rem; margin-top: 4px; }
-
-        /* Progress Bar */
-        .progress-container {
+        .status-label { font-size: 1.5rem; font-weight: 800; }
+        
+        .progress-bar {
             width: 100%; height: 4px; background: rgba(255,255,255,0.05);
-            border-radius: 2px; overflow: hidden; margin-top: 30px;
+            margin-top: 25px; border-radius: 2px; overflow: hidden;
         }
-        #progress-fill { height: 100%; width: 0%; background: var(--primary); transition: width 1s linear; }
+        #bar-fill { height: 100%; width: 0%; background: var(--primary); transition: width 1s linear; }
 
-        /* Logs */
-        .logs-container { display: flex; flex-direction: column; gap: 12px; }
-        .logs-header {
+        .logs-title {
+            font-size: 0.9rem; font-weight: 700; color: var(--text-dim);
+            margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;
+            border-bottom: 1px solid var(--border); padding-bottom: 10px;
+        }
+        .log-item {
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.01);
+            margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-        }
-        .log-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            padding: 16px;
-            background: rgba(255,255,255,0.02);
-            border-radius: 12px;
-            border-left: 4px solid var(--text-dim);
+            border-left: 3px solid var(--text-dim);
         }
         .log-item.up { border-left-color: var(--success); }
         .log-item.down { border-left-color: var(--danger); }
         
-        .log-info { flex-grow: 1; }
-        .log-msg { font-weight: 600; font-size: 0.9rem; }
-        .log-meta { font-size: 0.8rem; color: var(--text-dim); margin-top: 2px; }
-        .log-duration {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-            padding: 2px 8px;
-            border-radius: 4px;
-            margin-top: 8px;
+        .log-main { font-weight: 600; font-size: 0.85rem; }
+        .log-date { font-size: 0.75rem; color: var(--text-dim); }
+        .log-duration { 
+            font-size: 0.7rem; background: rgba(255,255,255,0.05); 
+            padding: 2px 6px; border-radius: 4px; margin-top: 4px;
             display: inline-block;
         }
-        .log-item.up .log-duration {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-
-        .btn-clear {
-            background: transparent; border: 1px solid var(--border);
-            color: var(--text-dim); padding: 6px 14px; border-radius: 6px;
-            cursor: pointer; font-size: 0.75rem; transition: 0.2s;
-        }
-        .btn-clear:hover { background: var(--danger); color: white; border-color: var(--danger); }
-
-        .empty-state { text-align: center; color: var(--text-dim); padding: 30px 0; font-size: 0.85rem; }
     </style>
 </head>
 <body>
@@ -182,195 +145,155 @@
         <p>Uptime Panel</p>
     </div>
 
-    <!-- Stats Row -->
-    <div class="header-stats">
+    <div class="stats-grid">
         <div class="stat-box">
-            <div class="stat-label">Availability</div>
-            <div id="stat-uptime-percent" class="stat-value">100%</div>
+            <div class="stat-label">Uptime</div>
+            <div id="stat-uptime" class="stat-value">100%</div>
         </div>
         <div class="stat-box">
-            <div class="stat-label">Total Incidents</div>
-            <div id="stat-down-count" class="stat-value">0</div>
+            <div class="stat-label">Incidents</div>
+            <div id="stat-incidents" class="stat-value">0</div>
         </div>
         <div class="stat-box">
             <div class="stat-label">Last Check</div>
-            <div id="stat-last-time" class="stat-value">--:--</div>
+            <div id="stat-last" class="stat-value">--:--</div>
         </div>
     </div>
 
-    <!-- Status Card -->
     <div class="card">
-        <div class="status-hero">
-            <div id="main-indicator" class="indicator">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        <div class="status-section">
+            <div id="indicator" class="indicator">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
             </div>
-            <div id="status-title" class="status-label">CONNECTING...</div>
-            <div id="status-desc" class="status-desc">Synchronizing with server</div>
-            
-            <div class="progress-container">
-                <div id="progress-fill"></div>
+            <div id="status-text" class="status-label">CHECKING...</div>
+            <div class="progress-bar">
+                <div id="bar-fill"></div>
             </div>
         </div>
     </div>
 
-    <!-- Logs Card -->
     <div class="card">
-        <div class="logs-header">
-            <h2 style="font-size: 1rem; font-weight: 700;">Incident History</h2>
-            <button class="btn-clear" onclick="clearLogs()">Clear History</button>
-        </div>
-        <div id="logs-list" class="logs-container">
-            <!-- Logs will appear here -->
+        <div class="logs-title">Incident History</div>
+        <div id="logs-list">
+            <!-- Logs appear here -->
         </div>
     </div>
 </div>
 
 <script>
-    const TARGET_URL = "https://newjersey-support.onrender.com/";
-    const CHECK_INTERVAL = 60;
+    const URL = "https://newjersey-support.onrender.com/";
+    const PROXY = "https://api.allorigins.win/raw?url="; // Using the 'raw' proxy from v2 which worked
     
-    const mainIndicator = document.getElementById("main-indicator");
-    const statusTitle = document.getElementById("status-title");
-    const statusDesc = document.getElementById("status-desc");
-    const progressFill = document.getElementById("progress-fill");
-    const logsList = document.getElementById("logs-list");
-    
-    const statUptime = document.getElementById("stat-uptime-percent");
-    const statDownCount = document.getElementById("stat-down-count");
-    const statLastTime = document.getElementById("stat-last-time");
+    let history = JSON.parse(localStorage.getItem('nj_logs_v5') || '[]');
+    let totalChecks = parseInt(localStorage.getItem('nj_total_v5') || '0');
+    let successChecks = parseInt(localStorage.getItem('nj_success_v5') || '0');
+    let lastStatus = null;
+    let downStart = localStorage.getItem('nj_down_start_v5') ? parseInt(localStorage.getItem('nj_down_start_v5')) : null;
 
-    let lastStatus = null; 
-    let downStartTime = localStorage.getItem('down_start_time') ? parseInt(localStorage.getItem('down_start_time')) : null;
-    let history = JSON.parse(localStorage.getItem('nj_bot_logs') || '[]');
-    let totalChecks = parseInt(localStorage.getItem('nj_total_checks') || '0');
-    let successfulChecks = parseInt(localStorage.getItem('nj_success_checks') || '0');
-
-    function saveStats() {
-        localStorage.setItem('nj_total_checks', totalChecks);
-        localStorage.setItem('nj_success_checks', successfulChecks);
-        updateStatsUI();
-    }
-
-    function updateStatsUI() {
-        const percent = totalChecks === 0 ? 100 : ((successfulChecks / totalChecks) * 100).toFixed(2);
-        statUptime.innerText = `${percent}%`;
-        statDownCount.innerText = history.filter(l => l.type === 'down').length;
-    }
-
-    async function checkBot() {
-        let isOnline = false;
+    async function check() {
         const now = new Date();
-        const timestamp = now.getTime();
         const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
         const dateStr = now.toLocaleDateString('en-US');
+        let isOnline = false;
 
         totalChecks++;
 
         try {
-            const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(TARGET_URL)}&t=${timestamp}`;
-            const res = await fetch(proxy);
-            const data = await res.json();
+            // Reverting to the logic that worked in the first versions
+            const res = await fetch(PROXY + encodeURIComponent(URL) + "&t=" + now.getTime());
+            const text = await res.text();
             
-            if (data && data.contents && data.contents.trim().includes("OK")) {
+            if (text.trim() === "OK") {
                 isOnline = true;
-                successfulChecks++;
+                successChecks++;
             }
         } catch (e) {
             isOnline = false;
         }
 
-        updateStatusUI(isOnline, timeStr);
-        handleLogs(isOnline, dateStr, timeStr, timestamp);
-        saveStats();
+        updateUI(isOnline, timeStr);
+        handleLogs(isOnline, dateStr, timeStr, now.getTime());
+        
+        localStorage.setItem('nj_total_v5', totalChecks);
+        localStorage.setItem('nj_success_v5', successChecks);
         startProgress();
     }
 
-    function updateStatusUI(isOnline, timeStr) {
-        statLastTime.innerText = timeStr;
+    function updateUI(isOnline, timeStr) {
+        const ind = document.getElementById("indicator");
+        const txt = document.getElementById("status-text");
+        
+        document.getElementById("stat-last").innerText = timeStr;
+        document.getElementById("stat-uptime").innerText = totalChecks === 0 ? "100%" : ((successChecks/totalChecks)*100).toFixed(2) + "%";
+        document.getElementById("stat-incidents").innerText = history.filter(l => l.type === 'down').length;
+
         if (isOnline) {
-            mainIndicator.className = "indicator online";
-            statusTitle.innerText = "ONLINE";
-            statusTitle.style.color = "var(--success)";
-            statusDesc.innerText = "System is operational and responding to requests.";
+            ind.className = "indicator online";
+            txt.innerText = "ONLINE";
+            txt.style.color = "var(--success)";
         } else {
-            mainIndicator.className = "indicator offline";
-            statusTitle.innerText = "OFFLINE";
-            statusTitle.style.color = "var(--danger)";
-            statusDesc.innerText = "Connection lost. Bot is currently unreachable.";
+            ind.className = "indicator offline";
+            txt.innerText = "OFFLINE";
+            txt.style.color = "var(--danger)";
         }
     }
 
-    function handleLogs(isOnline, date, time, timestamp) {
-        const currentStatus = isOnline ? 'online' : 'offline';
-
-        if (lastStatus !== null && lastStatus !== currentStatus) {
-            let logEntry = {
-                date, time, timestamp,
-                type: isOnline ? 'up' : 'down',
-                msg: isOnline ? 'System Restored' : 'Connection Lost (Down)'
-            };
+    function handleLogs(isOnline, date, time, ts) {
+        const current = isOnline ? 'online' : 'offline';
+        if (lastStatus !== null && lastStatus !== current) {
+            let log = { date, time, ts, type: isOnline ? 'up' : 'down', msg: isOnline ? 'System Restored' : 'Connection Lost' };
 
             if (!isOnline) {
-                downStartTime = timestamp;
-                localStorage.setItem('down_start_time', downStartTime);
-            } else if (isOnline && downStartTime) {
-                const diffMs = timestamp - downStartTime;
-                const mins = Math.floor(diffMs / 60000);
-                const secs = ((diffMs % 60000) / 1000).toFixed(0);
-                logEntry.duration = `Downtime: ${mins}m ${secs}s`;
-                downStartTime = null;
-                localStorage.removeItem('down_start_time');
+                downStart = ts;
+                localStorage.setItem('nj_down_start_v5', downStart);
+            } else if (isOnline && downStart) {
+                const diff = ts - downStart;
+                const m = Math.floor(diff / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                log.duration = `Downtime: ${m}m ${s}s`;
+                downStart = null;
+                localStorage.removeItem('nj_down_start_v5');
             }
 
-            history.unshift(logEntry);
+            history.unshift(log);
             if (history.length > 50) history.pop();
-            localStorage.setItem('nj_bot_logs', JSON.stringify(history));
+            localStorage.setItem('nj_logs_v5', JSON.stringify(history));
             renderLogs();
         }
-        lastStatus = currentStatus;
+        lastStatus = current;
     }
 
     function renderLogs() {
+        const list = document.getElementById("logs-list");
         if (history.length === 0) {
-            logsList.innerHTML = '<div class="empty-state">No incidents recorded yet. Monitoring...</div>';
+            list.innerHTML = '<div style="text-align:center; color:var(--text-dim); font-size:0.8rem;">Monitoring started. No incidents yet.</div>';
             return;
         }
-
-        logsList.innerHTML = history.map(log => `
-            <div class="log-item ${log.type}">
-                <div class="log-info">
-                    <div class="log-msg" style="color:${log.type === 'up' ? 'var(--success)' : 'var(--danger)'}">
-                        ${log.type === 'up' ? '▲ ' : '▼ '}${log.msg}
-                    </div>
-                    <div class="log-meta">${log.date} at ${log.time}</div>
-                    ${log.duration ? `<div class="log-duration">${log.duration}</div>` : ''}
+        list.innerHTML = history.map(l => `
+            <div class="log-item ${l.type}">
+                <div>
+                    <div class="log-main" style="color:${l.type === 'up' ? 'var(--success)' : 'var(--danger)'}">${l.msg}</div>
+                    <div class="log-date">${l.date} at ${l.time}</div>
+                    ${l.duration ? `<div class="log-duration">${l.duration}</div>` : ''}
                 </div>
             </div>
         `).join('');
     }
 
     function startProgress() {
-        progressFill.style.transition = 'none';
-        progressFill.style.width = '0%';
+        const fill = document.getElementById("bar-fill");
+        fill.style.transition = 'none';
+        fill.style.width = '0%';
         setTimeout(() => {
-            progressFill.style.transition = `width ${CHECK_INTERVAL}s linear`;
-            progressFill.style.width = '100%';
+            fill.style.transition = 'width 60s linear';
+            fill.style.width = '100%';
         }, 100);
     }
 
-    function clearLogs() {
-        if(confirm("All logs and statistics will be permanently deleted. Continue?")) {
-            localStorage.clear();
-            history = []; totalChecks = 0; successfulChecks = 0; downStartTime = null;
-            renderLogs(); updateStatsUI();
-        }
-    }
-
     renderLogs();
-    updateStatsUI();
-    checkBot();
-    setInterval(checkBot, CHECK_INTERVAL * 1000);
+    check();
+    setInterval(check, 60000);
 </script>
 
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a066bd2f19883d66',t:'MTc4MDU3NDAyNg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a066c3822a5d132c',t:'MTc4MDU3NDI4NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
